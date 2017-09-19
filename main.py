@@ -85,14 +85,30 @@ def genStatementsInserts(cursor):
     countTables = cursor.rowcount
     counter = 0
     try:
-        for tables in cursor.fetchall():
+        for tables in cursor.fetchall():            
             queryCreateTable = "SELECT * FROM " + tables[0] + "\n"
             file.write("-- " + queryCreateTable)
 
-            cursor.execute(queryCreateTable)            
+            cursor.execute(queryCreateTable)
+
+            print "Generating", cursor.rowcount, "inserts for", tables[0]
             for data in cursor.fetchall():
-                insert = "INSERT INTO " + tables[0] + "() VALUES"
-                file.write(data.__str__() + ";\n")
+                values = ""
+                lengthCountTemp = 0
+                lengthTotal = cursor.rowcount
+                for val in data:
+                    val = val.__str__()
+                    lengthCountTemp += 1
+                    if val.find('\'') != -1:
+                        # print "Encontrado ' en", val
+                        val = val.replace('\'', '\\\'')
+                    if lengthCountTemp != lengthTotal:
+                        values = values + "'" + val.__str__() + "',"
+                if values.endswith(','):
+                    values = values[:len(values) - 1]
+                
+                insert = "INSERT INTO " + tables[0].__str__() + " VALUES(" + values.__str__() + ")"
+                file.write(insert + ";\n")
                 # print data[1]
             counter = counter + 1
     except Exception as identifier:
