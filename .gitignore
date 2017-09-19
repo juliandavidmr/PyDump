@@ -1,5 +1,6 @@
 # Logs
 *.sql
+*.pyc
 logs
 *.log
 npm-debug.log*

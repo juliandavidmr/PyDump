@@ -1,13 +1,7 @@
+import datetime
 import MySQLdb
-
-credentials = {
-    "host": "localhost",
-    "user": "root",
-    "passwd": "root",
-    "db": "moodledistancia"
-}
-
-db = None
+from credentials import credentials
+from queries import showTables, showCreateTable
 
 
 def main():
@@ -18,15 +12,15 @@ def main():
 
     cursor = db.cursor()
 
+    initialDate = datetime.datetime.now()
     genDDLTables(cursor)
     genDDLProcedures(cursor)
     genStatementsInserts(cursor)
+    print "[FINISH]", (datetime.datetime.now() - initialDate), " total time."
 
-# List tables
 
-
-def genDDLTables(cursor):
-    cursor.execute("SHOW TABLES IN " + credentials.get("db"))
+def genDDLTables(cursor):  # List tables
+    cursor.execute(showTables(credentials.get("db")))
 
     file = open('ddltables.sql', 'w')
 
@@ -34,7 +28,7 @@ def genDDLTables(cursor):
     counter = 0
     try:
         for row in cursor.fetchall():
-            queryCreateTable = "SHOW CREATE TABLE " + row[0] + "\n"
+            queryCreateTable = showCreateTable(row[0])
             file.write("-- " + queryCreateTable)
 
             cursor.execute(queryCreateTable)
@@ -44,10 +38,10 @@ def genDDLTables(cursor):
             counter = counter + 1
     except Exception as identifier:
         print "Error", identifier.__str__()
-        # pass
 
     print "[OK]", counter.__str__(), "of", countTables.__str__(), "tables"
     file.close()
+
 
 def genDDLProcedures(cursor):
     cursor.execute("SHOW PROCEDURE STATUS")
@@ -77,15 +71,16 @@ def genDDLProcedures(cursor):
     print "[OK]", counter.__str__(), "of", countProc.__str__(), "procedures"
     file.close()
 
+
 def genStatementsInserts(cursor):
-    cursor.execute("SHOW TABLES IN " + credentials.get("db"))
+    cursor.execute(showTables(credentials.get("db")))
 
     file = open('inserts.sql', 'w')
 
     countTables = cursor.rowcount
     counter = 0
     try:
-        for tables in cursor.fetchall():            
+        for tables in cursor.fetchall():
             queryCreateTable = "SELECT * FROM " + tables[0] + "\n"
             file.write("-- " + queryCreateTable)
 
@@ -106,8 +101,9 @@ def genStatementsInserts(cursor):
                         values = values + "'" + val.__str__() + "',"
                 if values.endswith(','):
                     values = values[:len(values) - 1]
-                
-                insert = "INSERT INTO " + tables[0].__str__() + " VALUES(" + values.__str__() + ")"
+
+                insert = "INSERT INTO " + \
+                    tables[0].__str__() + " VALUES(" + values.__str__() + ")"
                 file.write(insert + ";\n")
                 # print data[1]
             counter = counter + 1
@@ -117,5 +113,6 @@ def genStatementsInserts(cursor):
 
     print "[OK]", counter.__str__(), "of", countTables.__str__(), "inserts"
     file.close()
+
 
 main()
