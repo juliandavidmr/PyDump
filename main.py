@@ -2,6 +2,7 @@ import datetime
 import MySQLdb
 from credentials import credentials
 from queries import showTables, showCreateTable
+# from 
 
 
 def main():
@@ -16,7 +17,7 @@ def main():
     genDDLTables(cursor)
     genDDLProcedures(cursor)
     genStatementsInserts(cursor)
-    print "[FINISH]", (datetime.datetime.now() - initialDate), " total time."
+    print "[FINISH]", (datetime.datetime.now() - initialDate), "total time."
 
 
 def genDDLTables(cursor):  # List tables
@@ -109,7 +110,6 @@ def genStatementsInserts(cursor):
             counter = counter + 1
     except Exception as identifier:
         print "Error", identifier.__str__()
-        # pass
 
     print "[OK]", counter.__str__(), "of", countTables.__str__(), "inserts"
     file.close()
