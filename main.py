@@ -2,7 +2,8 @@ import datetime
 import MySQLdb
 from credentials import credentials
 from queries import showTables, showCreateTable, showFunctions, showCreateFunction
-# from
+from configs import filename
+import utils
 
 
 def main():
@@ -12,6 +13,9 @@ def main():
                          db=credentials.get("db"))
 
     cursor = db.cursor()
+
+    # Create directory
+    utils.createFolder(filename.get("folderout"))
 
     initialDate = datetime.datetime.now()
     genDDLTables(cursor)
@@ -24,7 +28,7 @@ def main():
 def genDDLTables(cursor):  # List tables
     cursor.execute(showTables(credentials.get("db")))
 
-    file = open('ddltables.sql', 'w')
+    file = open(filename.get("tables"), 'w')
 
     countTables = cursor.rowcount
     counter = 0
@@ -48,7 +52,7 @@ def genDDLTables(cursor):  # List tables
 def genDDLFunctions(cursor):  # List tables
     cursor.execute(showFunctions())
 
-    file = open('ddlfunctions.sql', 'w')
+    file = open(filename.get("functions"), 'w')
 
     countFuncs = cursor.rowcount
     counter = 0
@@ -75,7 +79,7 @@ def genDDLFunctions(cursor):  # List tables
 def genDDLProcedures(cursor):
     cursor.execute("SHOW PROCEDURE STATUS")
 
-    file = open('ddlprocedures.sql', 'w')
+    file = open(filename.get("procedures"), 'w')
 
     countProc = cursor.rowcount
     counter = 0
@@ -103,7 +107,7 @@ def genDDLProcedures(cursor):
 def genStatementsInserts(cursor):
     cursor.execute(showTables(credentials.get("db")))
 
-    file = open('inserts.sql', 'w')
+    file = open(filename.get("inserts"), 'w')
 
     countTables = cursor.rowcount
     counter = 0
@@ -114,7 +118,8 @@ def genStatementsInserts(cursor):
 
             cursor.execute(queryCreateTable)
 
-            print "Generating", cursor.rowcount, "inserts for", tables[0]
+            utils.ptime("Generating", cursor.rowcount,
+                        "inserts for", tables[0])
             for data in cursor.fetchall():
                 values = ""
                 lengthCountTemp = 0

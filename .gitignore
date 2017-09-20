@@ -1,6 +1,16 @@
-# Logs
-*.sql
+# Compiled python modules.
 *.pyc
+
+# Setuptools distribution folder.
+/dist/
+
+# Python egg metadata, regenerated from source files by setuptools.
+/*.egg-info
+
+# SQL
+*.sql
+
+# Logs
 logs
 *.log
 npm-debug.log*
@@ -58,4 +68,4 @@ typings/
 
 # dotenv environment variables file
 .env
-
+*.cfg
