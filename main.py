@@ -1,8 +1,8 @@
 import datetime
 import MySQLdb
 from credentials import credentials
-from queries import showTables, showCreateTable
-# from 
+from queries import showTables, showCreateTable, showFunctions, showCreateFunction
+# from
 
 
 def main():
@@ -16,6 +16,7 @@ def main():
     initialDate = datetime.datetime.now()
     genDDLTables(cursor)
     genDDLProcedures(cursor)
+    genDDLFunctions(cursor)
     genStatementsInserts(cursor)
     print "[FINISH]", (datetime.datetime.now() - initialDate), "total time."
 
@@ -44,6 +45,33 @@ def genDDLTables(cursor):  # List tables
     file.close()
 
 
+def genDDLFunctions(cursor):  # List tables
+    cursor.execute(showFunctions())
+
+    file = open('ddlfunctions.sql', 'w')
+
+    countFuncs = cursor.rowcount
+    counter = 0
+
+    for row in cursor.fetchall():
+        try:
+            if row[0] == credentials.get("db"):
+                queryCreateFunc = showCreateFunction(row[1])
+                file.write("-- " + queryCreateFunc)
+
+                cursor.execute(queryCreateFunc)
+                for ddlt in cursor.fetchall():
+                    file.write(ddlt[2] + ";\n\n")
+                counter += 1
+            else:
+                countFuncs -= 1
+        except Exception as identifier:
+            print "Error", identifier.__str__()
+
+    print "[OK]", counter.__str__(), "of", countFuncs.__str__(), "functions"
+    file.close()
+
+
 def genDDLProcedures(cursor):
     cursor.execute("SHOW PROCEDURE STATUS")
 
@@ -67,7 +95,6 @@ def genDDLProcedures(cursor):
                 countProc = countProc - 1
     except Exception as identifier:
         print "Error", identifier.__str__()
-        # pass
 
     print "[OK]", counter.__str__(), "of", countProc.__str__(), "procedures"
     file.close()

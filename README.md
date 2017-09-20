@@ -2,8 +2,7 @@
 Dump Mysql with Python
 
 ## Features
-- [x] Generate DDL Tables, Procedures, Inserts
-- [ ] Generate DDL Functions
+- [x] Generate DDL Tables, Procedures, Inserts, Functions
 - [x] Messages log
 - [x] Tested with large amounts of data _(>2Gb)_
 
